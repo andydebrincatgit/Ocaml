@@ -1,0 +1,4 @@
+(library
+ (name assignmentthree)
+ (public_name assignmentthree)
+ (flags (:standard -warn-error -a)))

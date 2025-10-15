@@ -1,0 +1,24 @@
+(lang dune 3.19)
+
+(name assignmenttwo)
+
+(generate_opam_files true)
+
+(source
+ (github adrianfrancalanza/ocaml))
+
+(authors "Duncan Paul Attard" "Marietta Galea" "Gerard Tabone")
+
+(maintainers "duncan.attard@um.edu.mt" "marietta.galea@um.edu.mt" "gerard.tabone@um.edu.mt")
+
+(license Apache-2.0)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name assignmenttwo)
+ (synopsis "CPS 2001 - Programming paradigms OCaml assignment part one")
+ (description "A longer description")
+ (depends ocaml))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html

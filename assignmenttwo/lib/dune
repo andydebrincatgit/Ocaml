@@ -1,0 +1,4 @@
+(library
+ (name assignmenttwo)
+ (public_name assignmenttwo)
+ (flags (:standard -warn-error -a)))
