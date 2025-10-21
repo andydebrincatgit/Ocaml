@@ -40,8 +40,12 @@ let create_dfsa (fin : state set) (tra : ((state * alpha) * state) set): dfsa =
     [config] [(q, a)] is defined in the transition function [delta], otherwise 
     [None].
 *) 
-let rec transition (config: (state * alpha)) (delta : ((state * alpha) * state) set) : state option =
-  failwith "TODO Implementation"
+type 'a option = Some of 'a | None
+let rec transition (config: (state * alpha)) (delta : ((state * alpha) * state) set) : state option =match config with (st,alph) ->
+  match delta with 
+  | [] -> None
+  | ((a,b), c)::t -> if ((st = a) && (a_eq alph b)) then Some c else transition config t;;
+  
 
 (** Question 8.
     [delta_star s q dfsa]
@@ -50,20 +54,65 @@ let rec transition (config: (state * alpha)) (delta : ((state * alpha) * state) 
 
     If no such [q'] exists, [None] is returned.
 *)
-let rec delta_star (s: astring) (q: state) (dfsa: dfsa) : state option =
-  failwith "TODO Implementation"
+let rec delta_star (s: astring) (q: state) (dfsa: dfsa) : state option = 
+  match dfsa with {delta;_} ->
+    match s with 
+    | [] -> Some q
+    | h::t -> let x = transition (q,h) delta in
+     (match x with 
+     |None -> None 
+      | Some y -> ( delta_star t y dfsa ));;
+
 
 (** Question 9.
     [is_accepted s dfsa]
     Returns [true] if the input string [s] is accepted by the DFSA [dfsa], 
     otherwise [false].
 *)
-let is_accepted (s: astring) (dfsa: dfsa): bool = 
-  failwith "TODO Implementation"
 
+let rec is_elem e l = match l with 
+|[] -> false
+|h::t -> if e = h then true else is_elem e t;;
+let is_accepted (s: astring) (dfsa: dfsa): bool = match dfsa with {start;final;_} ->
+  match delta_star s start dfsa with
+  |None -> false
+  |Some c -> if is_elem c final then true else false;;
+  
 (** Question 10.
     [has_cycle dfsa]
     Returns [true] if [dfsa] contains at least one cycle, otherwise [false].
 *)
-let has_cycle (dfsa: dfsa): bool =
-  failwith "TODO Implementation"
+
+  let extract_states dfsa =  match dfsa with {start;final;delta} ->
+    let rec extract_delta_states d acc = match d with
+    |[]-> acc
+    |((a,_),c)::t-> extract_delta_states t (a::(c::acc))
+  in ([start]@final@(extract_delta_states delta []));;
+
+  let rec get_next_set q  delta acc= match delta with 
+  |[] -> acc
+  |((a,_),c)::t-> if a=q then get_next_set q t (c::acc) else get_next_set q t acc
+
+  let rec or_bool_list l = match l with 
+  |[] -> false
+  |h::t -> if h = true then true else or_bool_list t;;
+
+  let rec intersection_not_zero a b = match a with 
+  | []-> false
+  | h::t ->  if is_elem h b then true else intersection_not_zero t b;;
+  
+  let rec cycles_from_state already_visited q p delta = let next_set = get_next_set p delta [] in
+  if intersection_not_zero already_visited next_set then true
+  else let already_visited = already_visited@next_set in
+  if is_elem q next_set then true 
+  else if next_set = [] then false 
+  else or_bool_list (map (fun v ->cycles_from_state already_visited q v delta) next_set);;
+
+let has_cycle (dfsa: dfsa): bool = match dfsa with {delta;_} ->
+   let states = extract_states dfsa in
+   let rec check_each_state l d = match l with 
+   |[]-> false
+   |h::t -> if cycles_from_state [h] h h d then true else check_each_state t d
+in (check_each_state states delta);;
+
+  
