@@ -37,11 +37,7 @@ let rec reduce (f: 'a -> 'b -> 'a) (acc : 'a) (s: 'b list): 'a =
     [a_eq a b]
     Returns [true] if [a] = [b], otherwise [false].
 *)
-let a_eq (a: alpha) (b: alpha): bool = match a,b with 
-|A,A -> true
-|B,B -> true
-|_,_ -> false;;
-
+let a_eq (a: alpha) (b: alpha): bool = (a=b);;
 
 (** Question 2.
     [even_a a s]
@@ -61,7 +57,7 @@ and odd_a (a: alpha) (s: astring): bool = match s with
   [has_A s]
   Returns [true] if the letter [A] is contained in [s], otherwise [false].
 *)
-let has_A (s: astring): bool = let rec helper t = match t with 
+let has_A (s: astring): bool = let rec helper (t: astring) : bool = match t with 
 |[] -> false
 |h::r -> if a_eq h A then true else helper r
 in helper s;;
@@ -69,7 +65,7 @@ in helper s;;
   [has_B s]
   Returns [true] if the letter [B] is contained in [s], otherwise [false].
 *)
-let has_B (s: astring): bool = let rec helper t = match t with 
+let has_B (s: astring): bool = let rec helper (t: astring) : bool = match t with 
 |[] -> false
 |h::r -> if a_eq h B then true else helper r
 in helper s;;
@@ -104,13 +100,14 @@ let is_ABplus (s: astring): bool = match s with
     [len_red s]
     Returns the length of [s].
 *)
-let len_red (s: astring): int = reduce (fun acc _ -> (acc + 1)) 0 s;;
+let len_red (s: astring): int = reduce (fun (acc:int) _ :int-> (acc + 1)) 0 s;;
 
 (** Question 5.
     [has_A_red s]
     Returns [true] if the letter [A] is contained in [s], otherwise [false].
 *)
-let has_A_red (s: astring): bool = reduce (fun acc letter -> if ((a_eq A letter)||(acc=true)) then true else false) false s;;
+let has_A_red (s: astring): bool = 
+  reduce (fun (acc:bool) (letter:alpha):bool -> if ((a_eq A letter)||(acc=true)) then true else false) false s;;
 
 (** Question 6.
     [is_subset l p]
@@ -120,5 +117,6 @@ let has_A_red (s: astring): bool = reduce (fun acc letter -> if ((a_eq A letter)
     This means that every string in [l] satisfies [p], including the empty 
     language [[]].
 *)
-let is_subset (l: alang) (p: astring -> bool): bool =let helper_func acc bol =
-   if (bol=true && acc = true) then true else false in reduce helper_func true (map p l);;
+let is_subset (l: alang) (p: astring -> bool): bool = let helper_func (acc:bool) (bol:bool) : bool =
+   if (bol=true && acc = true) then true else false in
+    reduce (helper_func) true (map p l);;
