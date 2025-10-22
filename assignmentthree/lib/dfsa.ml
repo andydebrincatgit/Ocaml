@@ -83,36 +83,36 @@ let is_accepted (s: astring) (dfsa: dfsa): bool = match dfsa with {start;final;_
     Returns [true] if [dfsa] contains at least one cycle, otherwise [false].
 *)
 
-  let extract_states dfsa =  match dfsa with {start;final;delta} ->
-    let rec extract_delta_states d acc = match d with
+  let extract_all_possible_states dfsa =  match dfsa with {start;final;delta} ->
+    let rec rec_helper d acc = match d with
     |[]-> acc
-    |((a,_),c)::t-> extract_delta_states t (a::(c::acc))
-  in ([start]@final@(extract_delta_states delta []));;
+    |((a,_),c)::t-> rec_helper t (a::(c::acc))
+  in ([start]@final@(rec_helper delta []));;
 
-  let rec get_next_set q  delta acc= match delta with 
+  let rec get_next_set_of_reachable_states q  delta acc= match delta with 
   |[] -> acc
-  |((a,_),c)::t-> if a=q then get_next_set q t (c::acc) else get_next_set q t acc
+  |((a,_),c)::t-> if a=q then get_next_set_of_reachable_states q t (c::acc) else get_next_set_of_reachable_states q t acc
 
   let rec or_bool_list l = match l with 
   |[] -> false
   |h::t -> if h = true then true else or_bool_list t;;
 
-  let rec intersection_not_zero a b = match a with 
+  let rec is_intersection_not_zero a b = match a with 
   | []-> false
-  | h::t ->  if is_elem h b then true else intersection_not_zero t b;;
+  | h::t ->  if is_elem h b then true else is_intersection_not_zero t b;;
   
-  let rec cycles_from_state already_visited q p delta = let next_set = get_next_set p delta [] in
-  if intersection_not_zero already_visited next_set then true
+  let rec check_for_cycles_from_state already_visited q p delta = let next_set = get_next_set_of_reachable_states p delta [] in
+  if is_intersection_not_zero already_visited next_set then true
   else let already_visited = already_visited@next_set in
-  if is_elem q next_set then true 
-  else if next_set = [] then false 
-  else or_bool_list (map (fun v ->cycles_from_state already_visited q v delta) next_set);;
+  match next_set with
+  | [] -> false 
+  |_ -> or_bool_list (map (fun v ->check_for_cycles_from_state already_visited q v delta) next_set);;
 
 let has_cycle (dfsa: dfsa): bool = match dfsa with {delta;_} ->
-   let states = extract_states dfsa in
-   let rec check_each_state l d = match l with 
+   let states = extract_all_possible_states dfsa in
+   let rec check_from_each_state l d = match l with 
    |[]-> false
-   |h::t -> if cycles_from_state [h] h h d then true else check_each_state t d
-in (check_each_state states delta);;
+   |h::t -> if check_for_cycles_from_state [h] h h d then true else check_from_each_state t d
+in (check_from_each_state states delta);;
 
   
