@@ -126,13 +126,14 @@ in rev [] (aux_func [] s t);;
   | [] -> false 
   |_ -> or_bool_list (map (fun v ->check_for_cycles_from_state already_visited q v delta) next_set);;
 
+  (** Note that this function will treat the dfsa as a directed graph with multiple edges and self loops and check for any cycle anywhere
+  in the graph including edges from a state to itself and cycles in a disconnected part of the graph.*)
 let has_cycle (dfsa: dfsa): bool = match dfsa with {delta;_} ->
    let states = make_set (extract_all_possible_states dfsa) [] in
    let rec check_from_each_state l d = match l with 
    |[]-> false
    |h::t -> if check_for_cycles_from_state [h] h h d then true else check_from_each_state t d
 in (check_from_each_state states delta);;
-
 
 
 
