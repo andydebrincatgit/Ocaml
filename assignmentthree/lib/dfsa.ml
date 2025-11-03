@@ -118,10 +118,11 @@ in rev [] (aux_func [] s t);;
   | []-> false
   | h::t ->  if is_elem h b then true else is_intersection_not_zero t b;;
   
-  let rec check_for_cycles_from_state (already_visited:state set) (q:state) (p: state) (delta:((state * alpha) * state) set )  = 
-    let next_set = get_next_set_of_reachable_states p delta [] in
+ let rec check_for_cycles_from_state (already_visited:state set) (q:state) (p: state) (delta:((state * alpha) * state) set )  = 
+  let next_set = get_next_set_of_reachable_states p delta [] in
+  let already_visited = make_set (concat already_visited [p]) [] in
   if is_intersection_not_zero already_visited next_set then true
-  else let already_visited = make_set (concat already_visited next_set) [] in
+  else 
   match next_set with
   | [] -> false 
   |_ -> or_bool_list (map (fun v ->check_for_cycles_from_state already_visited q v delta) next_set);;

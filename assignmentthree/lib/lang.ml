@@ -58,25 +58,17 @@ and odd_a (a: alpha) (s: astring): bool = match s with
   Returns [true] if the letter [A] is contained in [s], otherwise [false].
 *)
 
-  (** or_list was deemed to be necessary to take a list of booleans representing if the entry in the list is the charachter c or not and
-    check if at least one entry is true to output the desired has_A and has_B functionality. Its neccesity was derived from this logic:
-      We were asked to implement has_A and has_B using only previously defined functions which means we must use a_eq
-      reduce, map, odd_a or even_a. However, it is impossible to define the function has_A and has_B using even_A and odd_A, since even_A
-      counts 0 occurences of a charachter as being even, so it will not relent any information on whether a string has a charachter or not.
-      That left reduce and map, but in question 5 we were asked to implemenet has_A with the reduce function, so that was also eleminated,
-      leaving the map function. The map function must always return a list which means that the only way to output a boolean was to make some 
-      other helper function, hence the need for or_list.*)
-let rec or_list (l: bool list) :bool  = match l with 
-|[] -> false
-|h::t -> if h then true else or_list t;;
+let rec has_a (a:alpha) (l:astring) : bool = match l with 
+|[]->false
+|h::t -> if a_eq a h then true else has_a a t;;
 
-let has_A (s: astring): bool = or_list (map (a_eq A) s);;
+let has_A (s: astring): bool = has_a A s;;
 
 (** Question 3.
   [has_B s]
   Returns [true] if the letter [B] is contained in [s], otherwise [false].
 *)
-let has_B (s: astring): bool =  or_list (map (a_eq B) s);;
+let has_B (s: astring): bool =  has_a B s;;
 (** Question 3.
     [has_odd_B s]
     Returns [true] if [s] has an odd number of the letter [B], otherwise
